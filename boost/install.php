@@ -8,6 +8,7 @@
  */
 function resumedrop_install(&$content)
 {
+    //require_once PHPWS_SOURCE_DIR . 'mod/resumedrop/class/Student';
     Database::phpwsDSNLoader(PHPWS_DSN);
     $db = Database::newDB();
     $db->begin();
