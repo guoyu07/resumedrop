@@ -29,12 +29,6 @@ class Student extends \Resource {
     protected $last_name;
 
     /**
-     *
-     * @var Variable\Email
-     */
-    protected $email;
-
-    /**
      * Id of college
      * @var Variable\Integer
      */
@@ -55,11 +49,9 @@ class Student extends \Resource {
         $this->username = new \Variable\String(null, 'username');
         $this->first_name = new \Variable\String(null, 'first_name');
         $this->last_name = new \Variable\String(null, 'last_name');
-        $this->email = new \Variable\Email(null, 'email');
         $this->college_id = new \Variable\Integer(null, 'college_id');
         $this->submissions = new \Variable\Integer(null, 'submissions');
     }
-
 }
 
 ?>
