@@ -20,7 +20,17 @@ class College extends \Resource {
     public function __construct()
     {
         parent::__construct();
-        $this->name = new \Variable\String(null, 'name');
+        $this->name = new \Variable\TextOnly(null, 'name');
+    }
+
+    public function setName($name)
+    {
+        $this->name->set($name);
+    }
+
+    public function getName()
+    {
+        return $this->name->get();
     }
 
 }

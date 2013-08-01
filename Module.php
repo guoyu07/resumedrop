@@ -20,11 +20,13 @@ class Module extends \Module implements \SettingDefaults {
     {
         $controllers = array(
             'resumes' => '\resumedrop\Controller\Resumes',
+            'students' => '\resumedrop\Controller\Students',
+            'colleges' => '\resumedrop\Controller\Colleges',
+            'counselors' => '\resumedrop\Controller\Counselors',
             'submit' => '\resumedrop\Controller\Submit'
         );
 
         $token = $request->getCurrentToken();
-
         if (!array_key_exists($token, $controllers)) {
             throw new \Http\NotFoundException($request);
         }

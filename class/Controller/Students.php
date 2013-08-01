@@ -8,7 +8,7 @@ namespace resumedrop\Controller;
  * @author Matthew McNaney <mcnaney at gmail dot com>
  * @license http://opensource.org/licenses/lgpl-3.0.html
  */
-class Resumes extends \Http\Controller {
+class Students extends \Http\Controller {
 
     private $menu;
 
@@ -20,6 +20,7 @@ class Resumes extends \Http\Controller {
 
     public function get(\Request $request)
     {
+
         $data = array();
         $view = $this->getView($data, $request);
         $response = new \Response($view);
@@ -29,28 +30,10 @@ class Resumes extends \Http\Controller {
     public function getHtmlView($data, \Request $request)
     {
         $data['menu'] = $this->menu->get($request);
-        \Pager::prepare();
-
         $template = new \Template;
         $template->addVariables($data);
-        $template->setModuleTemplate('resumedrop', 'Resumes/List.html');
+        $template->setModuleTemplate('resumedrop', 'Students/List.html');
         return $template;
-    }
-
-    protected function getJsonView($data, \Request $request)
-    {
-          $db = \Database::newDB();
-          $resume = $db->addTable('rd_resume');
-
-          $pager = new \DatabasePager($db);
-          $pager->setHeaders(array('title', 'created', 'version'));
-          $tbl_headers['title'] = $resume->getField('title');
-          $tbl_headers['created'] = $resume->getField('created');
-          $tbl_headers['version'] = $resume->getField('version');
-          $pager->setTableHeaders($tbl_headers);
-          $pager->setId('resume-list');
-          $data = $pager->getJson();
-          return parent::getJsonView($data, $request);
     }
 
 }

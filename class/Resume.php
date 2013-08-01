@@ -38,6 +38,7 @@ class Resume extends \Resource {
      * @var Variable\Integer
      */
     protected $version;
+
     protected $table = 'rd_resume';
 
     public function __construct()
