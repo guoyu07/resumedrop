@@ -30,6 +30,7 @@ class Colleges extends \Http\Controller {
     public function post(\Request $request)
     {
         $college = new \resumedrop\College;
+        $college->setId($request->getVar('college_id'));
         $college->setName($request->getVar('college'));
         \ResourceFactory::saveResource($college);
         $response = new \Http\RedirectResponse(\Server::getCurrentUrl(false));
@@ -42,6 +43,7 @@ class Colleges extends \Http\Controller {
         \Pager::prepare();
         javascript('jquery_ui');
         \Layout::addJSHeader("<script type='text/javascript' src='" . PHPWS_SOURCE_HTTP . "mod/resumedrop/javascript/College/script.js'></script>");
+        \Layout::addStyle('resumedrop', 'style.css');
         $data['menu'] = $this->menu->get($request);
         $template = new \Template;
         $template->addVariables($data);
