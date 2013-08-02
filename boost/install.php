@@ -25,11 +25,19 @@ function resumedrop_install(&$content)
 
         $counselor = new resumedrop\Counselor;
         $counselor->createTable($db);
+
+        $ctoc = $db->buildTable('rd_ctocollege');
+        $c1 = $ctoc->addDataType('college_id', 'integer');
+        $c2 = $ctoc->addDataType('counselor_id', 'integer');
+        $ctoc->create();
+        $index = new \Database\Index(array($c1, $c2), 'ctoc');
+        $index->create();
     } catch (\Exception $e) {
         $db->rollback();
         throw $e;
     }
     $db->commit();
+
     $content[] = 'Tables created';
     return true;
 }

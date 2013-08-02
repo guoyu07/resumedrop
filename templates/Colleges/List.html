@@ -16,10 +16,28 @@
     </table>
     <div class="pagination pagination-centered"></div>
 </div>
-<div id="create-college" style="display:none">
-    <form method="post" action="resumedrop/colleges" class="form-inline">
-            <input type="text" name="college" id="college-name" />
-            <input type="submit" class="btn" value="Save" />
-            <input type="hidden" id="college-id" name="college_id" value="0" />
+<div id="college-options" style="display:none">
+    <form method="post" action="resumedrop/colleges">
+        <input type="hidden" class="college-id" name="college_id" value="0" />
+        <input type="hidden" name="command" value="save" />
+        <input type="text" name="college" id="college-name" />
+        <input type="submit" id="save-button" class="btn" value="Save" />
     </form>
+    <div id="other-options" style="display:none;padding-top : 8px; border-top : 1px solid black; text-align : center">
+        <form method="post" action="resumedrop/colleges" class="form-inline">
+            <input type="hidden" class="college-id" name="college_id" value="0" />
+            <input type="hidden" name="command" value="delete" />
+            <input type="submit" class="btn btn-danger" value="Delete college" />
+        </form>
+        <form method="post" action="resumedrop/colleges" multiple>
+            <input type="hidden" class="college-id" name="college_id" value="0" />
+            <input type="hidden" name="command" value="update-counselors" />
+            <select class="counselors" multiple data-placeholder="Choose counselors for this college">
+                <option></option>
+                <option value="1">Big ass counselor name that will make this big</option>
+                <option value="2">Option 2</option>
+                <option value="3">Option 3</option>
+            </select>
+        </form>
+    </div>
 </div>
