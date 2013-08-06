@@ -21,7 +21,6 @@ class Colleges extends \Http\Controller {
     public function get(\Request $request)
     {
         $data = array();
-        $data['add'] = '<button class="btn">Add College</button>';
         $view = $this->getView($data, $request);
         $response = new \Response($view);
         return $response;
@@ -39,12 +38,20 @@ class Colleges extends \Http\Controller {
                 break;
 
             case 'delete':
-                \ResourceFactory::deleteResource($college);
+                $this->deleteCollege($college);
                 break;
-
         }
         $response = new \Http\RedirectResponse(\Server::getCurrentUrl(false));
         return $response;
+    }
+
+    private function deleteCollege(\resumedrop\College $college)
+    {
+        \ResourceFactory::deleteResource($college);
+        $db = \Database::newDB();
+        $db->setConditional($db->addTable('rd_ctocollege')->getFieldConditional('college_id',
+                        $college->getId()));
+        $db->delete();
     }
 
     public function getHtmlView($data, \Request $request)
@@ -52,9 +59,15 @@ class Colleges extends \Http\Controller {
         // JQuery called in prepare
         \Pager::prepare();
         javascript('jquery_ui');
-        \Layout::addToStyleList('mod/resumedrop/javascript/chosen/chosen.min.css');
-        \Layout::addJSHeader("<script type='text/javascript' src='" .
-                PHPWS_SOURCE_HTTP . "mod/resumedrop/javascript/chosen/chosen.jquery.min.js'></script>");
+        /*
+          \Layout::addToStyleList('mod/resumedrop/javascript/chosen/chosen.min.css');
+          \Layout::addJSHeader("<script type='text/javascript' src='" .
+          PHPWS_SOURCE_HTTP . "mod/resumedrop/javascript/chosen/chosen.jquery.min.js'></script>");
+         *
+         */
+          \Layout::addToStyleList('mod/resumedrop/javascript/select2/select2.css');
+          \Layout::addJSHeader("<script type='text/javascript' src='" .
+          PHPWS_SOURCE_HTTP . "mod/resumedrop/javascript/select2/select2.js'></script>");
         \Layout::addJSHeader("<script type='text/javascript' src='" .
                 PHPWS_SOURCE_HTTP . "mod/resumedrop/javascript/College/script.js'></script>");
         \Layout::addStyle('resumedrop', 'style.css');
@@ -67,18 +80,63 @@ class Colleges extends \Http\Controller {
 
     protected function getJsonView($data, \Request $request)
     {
-        $db = \Database::newDB();
-        $college = $db->addTable('rd_college');
 
-        $pager = new \DatabasePager($db);
-        $pager->setHeaders(array('name'));
-        $tbl_headers['name'] = $college->getField('name');
-        $pager->setTableHeaders($tbl_headers);
-        $pager->setId('college-list');
-        //$pager->processRows();
-        $pager->setRowIdColumn('id');
-        $data = $pager->getJson();
+        if ($request->isVar('command')) {
+            switch ($request->getVar('command')) {
+                case 'counselors':
+                    $data['counselors'] = $this->getCounselors($request->getVar('college_id'));
+                    break;
+            }
+        } else {
+            $db = \Database::newDB();
+            $college = $db->addTable('rd_college');
+
+            $pager = new \DatabasePager($db);
+            $pager->setHeaders(array('name'));
+            $tbl_headers['name'] = $college->getField('name');
+            $pager->setTableHeaders($tbl_headers);
+            $pager->setId('college-list');
+            $pager->setRowIdColumn('id');
+            $data = $pager->getJson();
+        }
         return parent::getJsonView($data, $request);
+    }
+
+    private function getCounselors($college_id)
+    {
+        $db = \Database::newDB();
+        $co = $db->addTable('rd_counselor');
+        $us = $db->addTable('users');
+        $us->addField('display_name');
+        $co->addField('id');
+
+        $us->addOrderBy('display_name');
+
+        $db->join($co->getField('user_id', null, false), $us->getField('id'));
+        $counselors = $db->select();
+
+        if (empty($counselors)) {
+            return null;
+        }
+        $selected_list = array();
+        $db2 = \Database::newDB();
+        $cto = $db2->addTable('rd_ctocollege');
+        $cto->addField('counselor_id');
+        $db2->setConditional($cto->getFieldConditional('college_id', $college_id));
+        while ($row = $db2->selectColumn()) {
+            $selected_list[] = $row;
+        }
+        $content[] = '<option></option>';
+        foreach ($counselors as $c) {
+            extract($c);
+            if (in_array($id, $selected_list)) {
+                $selected = 'selected="selected"';
+            } else {
+                $selected = null;
+            }
+            $content[] = "<option $selected value='$id'>$display_name</option>";
+        }
+        return implode("\n", $content);
     }
 
 }

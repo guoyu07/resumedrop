@@ -17,27 +17,30 @@
     <div class="pagination pagination-centered"></div>
 </div>
 <div id="college-options" style="display:none">
-    <form method="post" action="resumedrop/colleges">
+    <form method="post" action="resumedrop/colleges" class="form-inline">
         <input type="hidden" class="college-id" name="college_id" value="0" />
         <input type="hidden" name="command" value="save" />
         <input type="text" name="college" id="college-name" />
         <input type="submit" id="save-button" class="btn" value="Save" />
     </form>
-    <div id="other-options" style="display:none;padding-top : 8px; border-top : 1px solid black; text-align : center">
+    <div id="other-options" style="display:none">
+        <hr />
+        <p>Add counselors to this college</p>
+        <form method="post" action="resumedrop/colleges" multiple style="text-align : center">
+            <input type="hidden" class="college-id" name="college_id" value="0" />
+            <input type="hidden" name="command" value="update-counselors" />
+            <div id="counselors-list">
+                <select id="counselor-select" multiple style="width : 100%">
+                </select>
+            </div>
+            <input type="submit" class="btn" value="Save counselors" style="margin-top : 4px" />
+        </form>
+        <hr />
         <form method="post" action="resumedrop/colleges" class="form-inline">
             <input type="hidden" class="college-id" name="college_id" value="0" />
             <input type="hidden" name="command" value="delete" />
+            <label>Permanently delete this college</label>
             <input type="submit" class="btn btn-danger" value="Delete college" />
-        </form>
-        <form method="post" action="resumedrop/colleges" multiple>
-            <input type="hidden" class="college-id" name="college_id" value="0" />
-            <input type="hidden" name="command" value="update-counselors" />
-            <select class="counselors" multiple data-placeholder="Choose counselors for this college">
-                <option></option>
-                <option value="1">Big ass counselor name that will make this big</option>
-                <option value="2">Option 2</option>
-                <option value="3">Option 3</option>
-            </select>
         </form>
     </div>
 </div>

@@ -1,10 +1,3 @@
-$('.counselors').chosen({
-    disable_search_threshold: 10,
-    no_results_text: "Oops, nothing found!",
-    width: '400px'
-}
-);
-
 var college = new College;
 $(window).load(function() {
     college.init();
@@ -12,15 +5,14 @@ $(window).load(function() {
 });
 
 function College() {
-    $this = this;
     this.college_id = 0;
 
     this.init = function() {
+        $this = this;
         $('#college-options').dialog({
             modal: true,
             autoOpen: false,
-            width: 500,
-            height: 300
+            width: 500
         });
 
         $('#new-college').click(function() {
@@ -30,7 +22,7 @@ function College() {
 
         $('#college-options form').submit(function() {
             var college_name = $('input#college-name').val();
-            if (college_name.length == 0) {
+            if (college_name.length === 0) {
                 return false;
             }
         });
@@ -40,14 +32,23 @@ function College() {
 
     this.initializeRowClick = function()
     {
+        $this = this;
         $('.pager-row').click(function() {
             $this.college_id = $(this).data('rowId');
             $('#college-name').val($('.name', this).html());
             college.popup();
         });
-    }
+    };
 
     this.popup = function() {
+        $this = this;
+        $.get('resumedrop/colleges/?command=counselors', {'college_id': this.college_id},
+        function(data) {
+            $('#counselor-select').html(data.counselors);
+            $this.initSelect();
+            //$this.initChosen();
+        }, 'json');
+
         $('.college-id').val(this.college_id);
         var college_title = 'College options';
         if (this.college_id > 0) {
@@ -59,6 +60,14 @@ function College() {
         }
         $('#college-options').dialog({title: college_title});
         $('#college-options').dialog('open');
+    };
+
+    this.initSelect = function() {
+        $('#counselor-select').select2({
+            placeholder: 'Click to pick counselors',
+            width : 'copy',
+            closeOnSelect : false
+        });
     };
 
     this.delete = function() {
