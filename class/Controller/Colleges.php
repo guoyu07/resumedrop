@@ -40,9 +40,31 @@ class Colleges extends \Http\Controller {
             case 'delete':
                 $this->deleteCollege($college);
                 break;
+
+            case 'update-counselors':
+                $this->updateCounselors($request);
+                break;
         }
         $response = new \Http\RedirectResponse(\Server::getCurrentUrl(false));
         return $response;
+    }
+
+    private function updateCounselors(\Request $request)
+    {
+        if ($request->isVar('counselors') && $request->isVar('college_id')) {
+            $counselors = $request->getVar('counselors');
+            $db = \Database::newDB();
+            $ct = $db->addTable('rd_ctocollege');
+            $db->setConditional($ct->getFieldConditional('college_id',
+                            $request->getVar('college_id')));
+            $db->delete();
+            foreach ($counselors as $id) {
+                $ct->resetValues();
+                $ct->addValue('college_id', $request->getVar('college_id'));
+                $ct->addValue('counselor_id', $id);
+                $ct->insert();
+            }
+        }
     }
 
     private function deleteCollege(\resumedrop\College $college)
@@ -59,15 +81,9 @@ class Colleges extends \Http\Controller {
         // JQuery called in prepare
         \Pager::prepare();
         javascript('jquery_ui');
-        /*
-          \Layout::addToStyleList('mod/resumedrop/javascript/chosen/chosen.min.css');
-          \Layout::addJSHeader("<script type='text/javascript' src='" .
-          PHPWS_SOURCE_HTTP . "mod/resumedrop/javascript/chosen/chosen.jquery.min.js'></script>");
-         *
-         */
-          \Layout::addToStyleList('mod/resumedrop/javascript/select2/select2.css');
-          \Layout::addJSHeader("<script type='text/javascript' src='" .
-          PHPWS_SOURCE_HTTP . "mod/resumedrop/javascript/select2/select2.js'></script>");
+        \Layout::addToStyleList('mod/resumedrop/javascript/select2/select2.css');
+        \Layout::addJSHeader("<script type='text/javascript' src='" .
+                PHPWS_SOURCE_HTTP . "mod/resumedrop/javascript/select2/select2.js'></script>");
         \Layout::addJSHeader("<script type='text/javascript' src='" .
                 PHPWS_SOURCE_HTTP . "mod/resumedrop/javascript/College/script.js'></script>");
         \Layout::addStyle('resumedrop', 'style.css');
@@ -90,10 +106,18 @@ class Colleges extends \Http\Controller {
         } else {
             $db = \Database::newDB();
             $college = $db->addTable('rd_college');
+            $name = $college->addField('name');
+            $college->addField('id');
+            $ct = $db->addTable('rd_ctocollege');
+            $col_id = $ct->addField('college_id', 'assigned');
+            $col_id->showCount();
 
+            $db->join($college->getField('id'), $col_id, 'left');
+            $db->setGroupBy($name);
             $pager = new \DatabasePager($db);
-            $pager->setHeaders(array('name'));
-            $tbl_headers['name'] = $college->getField('name');
+            $pager->setHeaders(array('name', 'assigned'));
+            $tbl_headers['name'] = $name;
+            $tbl_headers['assigned'] = $col_id;
             $pager->setTableHeaders($tbl_headers);
             $pager->setId('college-list');
             $pager->setRowIdColumn('id');
@@ -107,10 +131,10 @@ class Colleges extends \Http\Controller {
         $db = \Database::newDB();
         $co = $db->addTable('rd_counselor');
         $us = $db->addTable('users');
-        $us->addField('display_name');
+        $dn = $us->addField('display_name');
         $co->addField('id');
 
-        $us->addOrderBy('display_name');
+        $us->addOrderBy($dn);
 
         $db->join($co->getField('user_id', null, false), $us->getField('id'));
         $counselors = $db->select();

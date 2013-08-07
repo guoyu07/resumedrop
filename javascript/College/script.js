@@ -46,7 +46,6 @@ function College() {
         function(data) {
             $('#counselor-select').html(data.counselors);
             $this.initSelect();
-            //$this.initChosen();
         }, 'json');
 
         $('.college-id').val(this.college_id);
@@ -65,8 +64,7 @@ function College() {
     this.initSelect = function() {
         $('#counselor-select').select2({
             placeholder: 'Click to pick counselors',
-            width : 'copy',
-            closeOnSelect : false
+            width : 'copy'
         });
     };
 
