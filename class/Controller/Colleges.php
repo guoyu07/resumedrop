@@ -45,7 +45,7 @@ class Colleges extends \Http\Controller {
                 $this->updateCounselors($request);
                 break;
         }
-        $response = new \Http\RedirectResponse(\Server::getCurrentUrl(false));
+        $response = new \Http\SeeOtherResponse(\Server::getCurrentUrl(false));
         return $response;
     }
 
