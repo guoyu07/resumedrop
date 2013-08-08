@@ -10,6 +10,7 @@
  * http://www.opensource.org/licenses/MIT
  */
 
+$directory = str_replace('index.php', '', $_SERVER['SCRIPT_FILENAME']);
 error_reporting(E_ALL | E_STRICT);
-require('UploadHandler.php');
+require($directory . 'UploadHandler.php');
 $upload_handler = new UploadHandler();

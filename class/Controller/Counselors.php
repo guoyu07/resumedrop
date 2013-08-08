@@ -27,12 +27,59 @@ class Counselors extends \Http\Controller {
         return $response;
     }
 
+    public function post(\Request $request)
+    {
+        switch ($request->getVar('command')) {
+            case 'save_counselor':
+                $db = \Database::newDB();
+                $rd = $db->addTable('rd_counselor');
+                $rd->addValue('user_id', $request->getVar('user_id'));
+                $rd->insert();
+                break;
+        }
+        $response = new \Http\RedirectResponse(\Server::getCurrentUrl(false));
+        return $response;
+    }
+
     public function getHtmlView($data, \Request $request)
     {
+        // JQuery called in prepare
+        \Pager::prepare();
+        javascript('jquery_ui');
+        \Layout::addToStyleList('mod/resumedrop/javascript/select2/select2.css');
+        \Layout::addJSHeader("<script type='text/javascript' src='" .
+                PHPWS_SOURCE_HTTP . "mod/resumedrop/javascript/select2/select2.js'></script>");
+        \Layout::addJSHeader("<script type='text/javascript' src='" .
+                PHPWS_SOURCE_HTTP . "mod/resumedrop/javascript/Counselor/script.js'></script>");
+        \Layout::addStyle('resumedrop', 'style.css');
         $data['menu'] = $this->menu->get($request);
         \Pager::prepare();
 
         $template = new \Template;
+
+        $db = \Database::newDB();
+        $ut = $db->addTable('users');
+        $co = $db->buildTable('rd_counselor');
+
+        $ut->addField('id');
+        $ut->addField('username');
+        $ut->addField('display_name');
+
+        $c_id = $co->getField('user_id');
+
+        $db->join($ut->getField('id'), $c_id, 'left outer');
+        $db->setConditional($db->createConditional($c_id, null, 'is'));
+
+        $result = $db->select();
+
+        if (!empty($result)) {
+            foreach ($result as $c) {
+                extract($c);
+                $counselors[$id] = "$display_name ($username)";
+            }
+            $data['users'] = $counselors;
+        }
+
         $template->addVariables($data);
         $template->setModuleTemplate('resumedrop', 'Counselors/List.html');
         return $template;

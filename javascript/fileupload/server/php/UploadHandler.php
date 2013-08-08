@@ -38,21 +38,20 @@ class UploadHandler {
     function __construct($options = null, $initialize = true, $error_messages = null)
     {
         $root_directory = str_replace('mod/resumedrop/javascript/fileupload/server/php/index.php',
-                        '', $_SERVER['SCRIPT_FILENAME']);
+                '', $_SERVER['SCRIPT_FILENAME']);
 
         require_once $root_directory . 'config/core/config.php';
         require_once $root_directory . 'Global/Functions.php';
         require_once $root_directory . 'Global/Session.php';
         require_once $root_directory . 'mod/users/class/Users.php';
 
-        Session::start();
-        $session = Session::singleton();
-        if (!$_SESSION['User']->isLogged()) {
+        $session = Session::getInstance();
+        if (!isset($_SESSION['User']) || !$_SESSION['User']->isLogged()) {
             exit();
         }
         $username = $_SESSION['User']->username;
 
-        $upload_directory =  "$root_directory/files/resumedrop/$username/";
+        $upload_directory = $root_directory . "files/resumedrop/$username/";
 
         $https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https://' : 'http://';
 
@@ -99,7 +98,7 @@ class UploadHandler {
             // Defines which files can be displayed inline when downloaded:
             'inline_file_types' => '/\.(gif|jpe?g|png)$/i',
             // Defines which files (based on their names) are accepted for upload:
-            'accept_file_types' => '/.+$/i',
+            'accept_file_types' => '/\.pdf$/i',
             // The php.ini settings upload_max_filesize and post_max_size
             // take precedence over the following max_file_size setting:
             'max_file_size' => null,

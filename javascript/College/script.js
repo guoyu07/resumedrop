@@ -27,8 +27,21 @@ function College() {
             }
         });
 
+        this.deleteApproval();
+        $('#delete-approval').change(function() {
+            $this.deleteApproval();
+        });
+
         this.initializeRowClick();
     };
+
+    this.deleteApproval = function() {
+        if ($('#delete-approval').is(':checked')) {
+            $('#delete-button').removeAttr('disabled');
+        } else {
+            $('#delete-button').attr('disabled', 'disabled');
+        }
+    }
 
     this.initializeRowClick = function()
     {

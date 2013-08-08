@@ -38,11 +38,13 @@
             <input type="submit" class="btn" value="Save counselors" style="margin-top : 4px" />
         </form>
         <hr />
-        <form method="post" action="resumedrop/colleges" class="form-inline">
+        <form method="post" action="resumedrop/colleges" class="form-inline" style="text-align : center">
             <input type="hidden" class="college-id" name="college_id" value="0" />
             <input type="hidden" name="command" value="delete" />
-            <label>Permanently delete this college</label>
-            <input type="submit" class="btn btn-danger" value="Delete college" />
+            <input type="submit" id="delete-button" class="btn-danger btn" disabled value="Permanently delete this college" />
+            <br />
+            <input type="checkbox" id="delete-approval" name="delete_approval" value="1" id="delete-approval" />
+            <label for="delete-approval">Confirm deletion</label>
         </form>
     </div>
 </div>

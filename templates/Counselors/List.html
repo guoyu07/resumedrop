@@ -1,5 +1,5 @@
 <?=$menu?>
-<p><button class="btn">Assign counselor</button></p>
+<p><button class="btn" id="assign-counselor">Assign counselor</button></p>
 <div class="pager-listing" id="counselor-list" data-rpp="10">
     <div style="text-align:right" class="pager-search"></div>
     <table class="table table-striped">
@@ -17,4 +17,18 @@
         </tbody>
     </table>
     <div class="pagination pagination-centered"></div>
+</div>
+<div id="assign-form" style="display:none">
+    <?php if (isset($users)): ?>
+    <form method="post" action="resumedrop/counselors">
+        <input type="hidden" name="command" value="save_counselor" />
+        <select name="user_id" id="user-id"><?php foreach($users as $user_id=>$username):?>
+            <option value='<?=$user_id?>'><?=$username?></option>
+            <?php endforeach; ?></select>
+        <input type="submit" value="Make user a counselor" />
+    </form>
+    <?php endif; ?>
+    <?php if (!isset($users)): ?>
+    <p>All users have been assigned.</p>
+    <?php endif; ?>
 </div>
