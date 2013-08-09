@@ -37,15 +37,14 @@ class Counselors extends \Http\Controller {
                 $rd->insert();
                 break;
         }
-        $response = new \Http\RedirectResponse(\Server::getCurrentUrl(false));
+        $response = new \Http\SeeOtherResponse(\Server::getCurrentUrl(false));
         return $response;
     }
 
     public function getHtmlView($data, \Request $request)
     {
-        // JQuery called in prepare
-        \Pager::prepare();
         javascript('jquery_ui');
+        \Pager::prepare();
         \Layout::addToStyleList('mod/resumedrop/javascript/select2/select2.css');
         \Layout::addJSHeader("<script type='text/javascript' src='" .
                 PHPWS_SOURCE_HTTP . "mod/resumedrop/javascript/select2/select2.js'></script>");
@@ -53,10 +52,18 @@ class Counselors extends \Http\Controller {
                 PHPWS_SOURCE_HTTP . "mod/resumedrop/javascript/Counselor/script.js'></script>");
         \Layout::addStyle('resumedrop', 'style.css');
         $data['menu'] = $this->menu->get($request);
-        \Pager::prepare();
 
         $template = new \Template;
 
+        $data['users'] = $this->getCounselorList();
+
+        $template->addVariables($data);
+        $template->setModuleTemplate('resumedrop', 'Counselors/List.html');
+        return $template;
+    }
+
+    private function getCounselorList()
+    {
         $db = \Database::newDB();
         $ut = $db->addTable('users');
         $co = $db->buildTable('rd_counselor');
@@ -71,28 +78,39 @@ class Counselors extends \Http\Controller {
         $db->setConditional($db->createConditional($c_id, null, 'is'));
 
         $result = $db->select();
-
         if (!empty($result)) {
             foreach ($result as $c) {
                 extract($c);
                 $counselors[$id] = "$display_name ($username)";
             }
-            $data['users'] = $counselors;
+            return $counselors;
         }
-
-        $template->addVariables($data);
-        $template->setModuleTemplate('resumedrop', 'Counselors/List.html');
-        return $template;
     }
 
     protected function getJsonView($data, \Request $request)
     {
+        if ($request->isVar('command')) {
+            switch ($request->getVar('command')) {
+                case 'delete_counselor':
+                    $counselor_id = $request->getVar('counselor_id');
+                    $data['id'] = $counselor_id;
+                    $db = \Database::newDB();
+                    $c1 = $db->addTable('rd_counselor')->getFieldConditional('user_id',
+                            $counselor_id);
+                    $db->setConditional($c1);
+                    $db->delete();
+                    $data['counselors'] = $this->getCounselorList();
+                    break;
+            }
+            return parent::getJsonView($data, $request);
+        }
+
         $db = \Database::newDB();
         $coun = $db->addTable('rd_counselor');
         $cuid_field = $coun->getField('user_id');
 
         $users = $db->addTable('users');
-        $ui_field = $users->getField('id');
+        $ui_field = $users->addField('id');
         $un_field = $users->addField('username');
         $dn_field = $users->addField('display_name');
 
@@ -105,8 +123,16 @@ class Counselors extends \Http\Controller {
         $tbl_headers['display_name'] = $dn_field;
         $pager->setTableHeaders($tbl_headers);
         $pager->setId('counselor-list');
+        $pager->setCallback(array('resumedrop\Controller\Counselors', 'rowAdd'));
+        $pager->setRowIdColumn('id');
         $data = $pager->getJson();
         return parent::getJsonView($data, $request);
+    }
+
+    public static function rowAdd($array)
+    {
+        $array['action'] = '<button class="btn btn-danger delete-counselor">Delete</button>';
+        return $array;
     }
 
 }

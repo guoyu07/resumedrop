@@ -7,12 +7,14 @@
             <tr>
                 <th class="pager-header display_name"></th>
                 <th class="pager-header username"></th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody class="pager-body">
-            <tr class="pager-row">
+            <tr class="pager-row" data-row-id="">
                 <td class="pager-column display_name"></td>
                 <td class="pager-column username"></td>
+                <td class="pager-column action"></td>
             </tr>
         </tbody>
     </table>
@@ -32,3 +34,4 @@
     <p>All users have been assigned.</p>
     <?php endif; ?>
 </div>
+<table id="error"></table>
