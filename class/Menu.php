@@ -14,7 +14,7 @@ class Menu {
         $token = $request->getCurrentToken();
 
         $template = new \Template(array($token=>1));
-        $template->setModuleTemplate('resumedrop', 'Menu/Main.html');
+        $template->setModuleTemplate('resumedrop', 'Admin/Menu/Main.html');
         return $template->get();
     }
 }

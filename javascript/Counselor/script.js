@@ -28,7 +28,7 @@ function Counselor() {
         $('.delete-counselor').click(function() {
             var row = $(this).parents('.pager-row')[0];
             var counselor_id = $(row).data('rowId');
-            $.get('resumedrop/counselors',
+            $.get('resumedrop/admin/counselors',
                     {
                         'command': 'delete_counselor',
                         'counselor_id': counselor_id

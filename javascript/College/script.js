@@ -55,7 +55,7 @@ function College() {
 
     this.popup = function() {
         $this = this;
-        $.get('resumedrop/colleges/?command=counselors', {'college_id': this.college_id},
+        $.get('resumedrop/admin/colleges/?command=counselors', {'college_id': this.college_id},
         function(data) {
             $('#counselor-select').html(data.counselors);
             $this.initSelect();

@@ -11,6 +11,7 @@ class Submit extends \Http\Controller {
 
     public function get(\Request $request)
     {
+        require_once PHPWS_SOURCE_DIR . 'Global/Form.php';
         javascript('jquery');
         javascript('jquery_ui');
         $scs = '<script type="text/javascript" src="' . PHPWS_SOURCE_HTTP .
@@ -18,7 +19,6 @@ class Submit extends \Http\Controller {
         $sce = '"></script>';
 
         \Layout::addToStyleList('mod/resumedrop/javascript/fileupload/css/jquery.fileupload-ui.css');
-
         \Layout::addJSHeader($scs . 'fileupload/js/jquery.iframe-transport.js' . $sce);
         \Layout::addJSHeader($scs . 'fileupload/js/jquery.fileupload.js' . $sce);
         \Layout::addJSHeader($scs . 'fileupload/js/jquery.fileupload-process.js' . $sce);

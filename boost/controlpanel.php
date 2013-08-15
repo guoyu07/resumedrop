@@ -6,7 +6,7 @@
  */
 $link[] = array('label' => 'Resume Drop',
     'restricted' => TRUE,
-    'url' => 'resumedrop/resumes/',
+    'url' => 'resumedrop/admin/',
     'description' => 'Lets students post resumes for counselors to review.',
     'image' => 'dropbox.png',
     'tab' => 'content'

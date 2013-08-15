@@ -1,6 +1,6 @@
 <?php
 
-namespace resumedrop\Controller;
+namespace resumedrop\Controller\Admin;
 
 /**
  * The controller for resume administration.
@@ -32,7 +32,7 @@ class Students extends \Http\Controller {
         $data['menu'] = $this->menu->get($request);
         $template = new \Template;
         $template->addVariables($data);
-        $template->setModuleTemplate('resumedrop', 'Students/List.html');
+        $template->setModuleTemplate('resumedrop', 'Admin/Students/List.html');
         return $template;
     }
 

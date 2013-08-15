@@ -1,6 +1,6 @@
 <?php
 
-namespace resumedrop\Controller;
+namespace resumedrop\Controller\Admin;
 
 /**
  * The controller for resume administration.
@@ -58,7 +58,7 @@ class Counselors extends \Http\Controller {
         $data['users'] = $this->getCounselorList();
 
         $template->addVariables($data);
-        $template->setModuleTemplate('resumedrop', 'Counselors/List.html');
+        $template->setModuleTemplate('resumedrop', 'Admin/Counselors/List.html');
         return $template;
     }
 
@@ -123,7 +123,7 @@ class Counselors extends \Http\Controller {
         $tbl_headers['display_name'] = $dn_field;
         $pager->setTableHeaders($tbl_headers);
         $pager->setId('counselor-list');
-        $pager->setCallback(array('resumedrop\Controller\Counselors', 'rowAdd'));
+        $pager->setCallback(array('resumedrop\Controller\Admin\Counselors', 'rowAdd'));
         $pager->setRowIdColumn('id');
         $data = $pager->getJson();
         return parent::getJsonView($data, $request);

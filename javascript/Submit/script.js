@@ -9,9 +9,8 @@ $(function() {
             if (data.result.files[0].error) {
                 alert(data.result.files[0].error);
             } else {
-                
+                console.log(data);
             }
-            console.log(data);
         },
         progressall: function(e, data) {
             var progress = parseInt(data.loaded / data.total * 100, 10);
