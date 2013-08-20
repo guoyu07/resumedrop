@@ -1,3 +1,17 @@
+$(window).load(function() {
+    $('#success').dialog(
+            {
+                autoOpen: false,
+                modal: true,
+                width : 400,
+                title: 'Thank you',
+                buttons: [{text: "Ok", click: function() {
+                            $(this).dialog("close");
+                            location.href = location.href.replace(/resumedrop\/?.*/, '');
+                        }}]
+            });
+});
+
 $(function() {
     'use strict';
     // Change this to the location of your server-side upload handler:
@@ -9,7 +23,7 @@ $(function() {
             if (data.result.files[0].error) {
                 alert(data.result.files[0].error);
             } else {
-                console.log(data);
+                $('#success').dialog('open');
             }
         },
         progressall: function(e, data) {

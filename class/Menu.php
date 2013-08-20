@@ -11,8 +11,7 @@ class Menu {
 
     public function get(\Request $request)
     {
-        $token = $request->getCurrentToken();
-
+        $token = $request->getNextRequest()->getCurrentToken();
         $template = new \Template(array($token=>1));
         $template->setModuleTemplate('resumedrop', 'Admin/Menu/Main.html');
         return $template->get();

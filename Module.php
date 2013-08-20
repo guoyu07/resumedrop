@@ -21,7 +21,7 @@ class Module extends \Module {
         $token = $request->getCurrentToken();
         if (!\Current_User::isLogged() || $token == '/' || $token == 'user') {
             // not logged, let User controller handle log in
-            $controller = new \resumedrop\Controller\User($this);
+                $controller = new \resumedrop\Controller\User($this);
         } elseif ($token == 'admin' && \Current_User::allow('resumedrop')) {
             $admin = new \resumedrop\Controller\Admin($this);
             $controller = $admin->getController($request);

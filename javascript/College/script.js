@@ -55,6 +55,9 @@ function College() {
 
     this.popup = function() {
         $this = this;
+        $('#delete-approval').attr('checked', false);
+        $('#delete-button').attr('disabled', 'disabled');
+
         $.get('resumedrop/admin/colleges/?command=counselors', {'college_id': this.college_id},
         function(data) {
             $('#counselor-select').html(data.counselors);
@@ -77,7 +80,7 @@ function College() {
     this.initSelect = function() {
         $('#counselor-select').select2({
             placeholder: 'Click to pick counselors',
-            width : 'copy'
+            width: 'copy'
         });
     };
 

@@ -30,7 +30,6 @@ class Colleges extends \Http\Controller {
     {
         $college = new \resumedrop\College;
         $college->setId($request->getVar('college_id'));
-
         switch ($request->getVar('command')) {
             case 'save':
                 $college->setName($request->getVar('college'));
