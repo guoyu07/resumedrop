@@ -18,8 +18,6 @@ class Admin extends \Http\Controller {
             $token = 'resumes';
         }
         $controllers = array(
-            'resumes' => '\resumedrop\Controller\Admin\Resumes',
-            'students' => '\resumedrop\Controller\Admin\Students',
             'colleges' => '\resumedrop\Controller\Admin\Colleges',
             'counselors' => '\resumedrop\Controller\Admin\Counselors'
         );

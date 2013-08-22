@@ -73,6 +73,13 @@ class Colleges extends \Http\Controller {
         $db->setConditional($db->addTable('rd_ctocollege')->getFieldConditional('college_id',
                         $college->getId()));
         $db->delete();
+
+        $db2 = \Database::newDb();
+        $stbl = $db2->addTable('rd_student');
+        $db2->setConditional($stbl->getFieldConditional('college_id', $college->getId()));
+        $stbl->addValue('college_id', 0);
+        $stbl->addValue('reviewed', 0);
+        $db2->update();
     }
 
     public function getHtmlView($data, \Request $request)

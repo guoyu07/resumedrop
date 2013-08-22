@@ -3,11 +3,21 @@ $(window).load(function() {
             {
                 autoOpen: false,
                 modal: true,
-                width : 400,
+                width: 500,
                 title: 'Thank you',
                 buttons: [{text: "Ok", click: function() {
                             $(this).dialog("close");
                             location.href = location.href.replace(/resumedrop\/?.*/, '');
+                        }}]
+            });
+    $('#failure').dialog(
+            {
+                autoOpen: false,
+                modal: true,
+                width: 500,
+                title: 'Sorry',
+                buttons: [{text: "Ok", click: function() {
+                            $(this).dialog("close");
                         }}]
             });
 });
@@ -15,13 +25,13 @@ $(window).load(function() {
 $(function() {
     'use strict';
     // Change this to the location of your server-side upload handler:
-    var url = 'mod/resumedrop/javascript/fileupload/server/php/';
+    var url = 'resumedrop/upload/';
     $('#fileupload').fileupload({
         url: url,
         dataType: 'json',
         done: function(e, data) {
-            if (data.result.files[0].error) {
-                alert(data.result.files[0].error);
+            if (data._response.result.files[0].error !== undefined) {
+                $('#failure').dialog('open');
             } else {
                 $('#success').dialog('open');
             }

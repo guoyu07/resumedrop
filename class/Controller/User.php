@@ -69,25 +69,156 @@ class User extends \Http\Controller {
             $data['content'] = $ue->getMessage();
         }
 
-
         $view = $this->getView($data, $request);
         $response = new \Response($view);
         return $response;
     }
 
+    /**
+     * source http://www.barattalo.it/2010/01/10/sending-emails-with-attachment-and-html-with-php/
+     * @param type $to
+     * @param type $subject
+     * @param type $messagehtml
+     * @param type $from
+     * @param type $fileatt
+     * @param type $replyto
+     * @return type
+     */
+    public function mail_file($to, $subject, $messagehtml, $from, $fileatt, $replyto = "")
+    {
+        // handles mime type for better receiving
+        $ext = strrchr($fileatt, '.');
+        $ftype = "";
+        if ($ext == ".doc")
+            $ftype = "application/msword";
+        if ($ext == ".jpg")
+            $ftype = "image/jpeg";
+        if ($ext == ".gif")
+            $ftype = "image/gif";
+        if ($ext == ".zip")
+            $ftype = "application/zip";
+        if ($ext == ".pdf")
+            $ftype = "application/pdf";
+        if ($ftype == "")
+            $ftype = "application/octet-stream";
+
+        // read file into $data var
+        $file = fopen($fileatt, "rb");
+        $data = fread($file, filesize($fileatt));
+        fclose($file);
+
+        // split the file into chunks for attaching
+        $content = chunk_split(base64_encode($data));
+        $uid = md5(uniqid(time()));
+
+        // build the headers for attachment and html
+        $h = "From: $from\r\n";
+        if ($replyto)
+            $h .= "Reply-To: " . $replyto . "\r\n";
+        $h .= "MIME-Version: 1.0\r\n";
+        $h .= "Content-Type: multipart/mixed; boundary=\"" . $uid . "\"\r\n\r\n";
+        $h .= "This is a multi-part message in MIME format.\r\n";
+        $h .= "--" . $uid . "\r\n";
+        $h .= "Content-type:text/html; charset=iso-8859-1\r\n";
+        $h .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
+        $h .= $messagehtml . "\r\n\r\n";
+        $h .= "--" . $uid . "\r\n";
+        $h .= "Content-Type: " . $ftype . "; name=\"" . basename($fileatt) . "\"\r\n";
+        $h .= "Content-Transfer-Encoding: base64\r\n";
+        $h .= "Content-Disposition: attachment; filename=\"" . basename($fileatt) . "\"\r\n\r\n";
+        $h .= $content . "\r\n\r\n";
+        $h .= "--" . $uid . "--";
+
+        // send mail
+        return mail($to, $subject, strip_tags($messagehtml),
+                str_replace("\r\n", "\n", $h));
+    }
+
+    private function uploadFile()
+    {
+        require_once PHPWS_SOURCE_DIR . 'mod/resumedrop/class/UploadHandler.php';
+        $upload_handler = new \UploadHandler();
+        if (!$upload_handler->error) {
+            $this->emailResume($upload_handler->stamped_file);
+        }
+    }
+
+    private function emailResume($file)
+    {
+        $db = \Database::newDB();
+        $cttbl = $db->buildTable('rd_ctocollege');
+        $cotbl = $db->buildTable('rd_counselor');
+        $utbl = $db->addTable('users');
+
+        $utbl->addField('email');
+
+        $db->join($cttbl->getField('counselor_id'), $cotbl->getField('id'));
+        $db->join($cotbl->getField('user_id'), $utbl->getField('id'));
+
+        $c1 = $cttbl->getFieldConditional('college_id',
+                $this->student->college_id);
+        $db->setConditional($c1);
+
+        $to[] = $counselor_email;
+        /*
+          if ($this->reference_email1) {
+          $to[] = $this->reference_email1;
+          }
+          if ($this->reference_email2) {
+          $to[] = $this->reference_email2;
+          }
+          if ($this->reference_email3) {
+          $to[] = $this->reference_email3;
+          }
+
+          $subject = 'Reference request';
+          $from = \PHPWS_Settings::get('douglas', 'contact_email');
+          $due_date = \PHPWS_Settings::get('douglas', 'due_date');
+          $message = <<<EOF
+          <html><body>
+          <p>Good day,</p>
+
+          <p>{$this->first_name} {$this->last_name} submitted your email address as a reference for
+          University Recreation's Douglas Miller Honorary Scholarship.</p>
+          <p>Their application is attached.</p>
+
+          <p>Please take a moment to email your recommendation to $from by replying to this email.</p>
+
+          <p>The due date for the reference is $due_date.</p>
+
+          <p>Thank you for your time.</p>
+          <p>
+          Sincerely,<br />
+          University Recreation</p></body></html>
+          EOF;
+          $file_name = $this->printPDF(true);
+          foreach ($to as $refemail) {
+          $this->mail_file($refemail, $subject, $message, $from, $file_name);
+          }
+         *
+         */
+    }
+
     public function post(\Request $request)
     {
+        $token = $request->getCurrentToken();
         try {
-            $this->checkShibLogin();
-            $this->loadStudent();
-            if (!$request->isVar('command')) {
-                throw new \resumedrop\UserException('Colleges have not been created. Please contact the administrators.');
-            }
+            if ($token == 'upload') {
+                $this->uploadFile();
+                exit();
+            } else {
+                $this->checkShibLogin();
+                $this->loadStudent();
+                if (!$request->isVar('command')) {
+                    throw new \resumedrop\UserException('Colleges have not been created. Please contact the administrators.');
+                }
 
-            switch ($request->getVar('command')) {
-                case 'update_student':
-                    $this->updateStudent($request);
-                    break;
+                switch ($request->getVar('command')) {
+                    case 'update_student':
+                        $this->updateStudent($request);
+                        break;
+                }
+                $response = new \Http\SeeOtherResponse(\Server::getCurrentUrl(false));
             }
         } catch (\resumedrop\UserException $ue) {
             $data['title'] = 'Sorry but there is a problem';
@@ -96,7 +227,6 @@ class User extends \Http\Controller {
             $response = new \Response($view);
             return $response;
         }
-        $response = new \Http\SeeOtherResponse(\Server::getCurrentUrl(false));
         return $response;
     }
 
@@ -164,7 +294,7 @@ class User extends \Http\Controller {
 
     private function uploadScreen()
     {
-         require_once PHPWS_SOURCE_DIR . 'Global/Form.php';
+        require_once PHPWS_SOURCE_DIR . 'Global/Form.php';
         javascript('jquery');
         javascript('jquery_ui');
         $scs = '<script type="text/javascript" src="' . PHPWS_SOURCE_HTTP .

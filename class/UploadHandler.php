@@ -13,6 +13,10 @@
 
 class UploadHandler {
 
+    public $stamped_file;
+
+    public $error = false;
+
     protected $options;
     // PHP File Upload error message codes:
     // http://php.net/manual/en/features.file-upload.errors.php
@@ -37,27 +41,8 @@ class UploadHandler {
 
     function __construct($options = null, $initialize = true, $error_messages = null)
     {
-        $root_directory = str_replace('mod/resumedrop/javascript/fileupload/server/php/index.php',
-                '', $_SERVER['SCRIPT_FILENAME']);
-
-        require_once $root_directory . 'config/core/config.php';
-        require_once $root_directory . 'Global/Functions.php';
-        require_once $root_directory . 'Global/Session.php';
-        require_once $root_directory . 'mod/users/class/Users.php';
-
-        $session = Session::getInstance();
-        if (!isset($_SESSION['User']) || !$_SESSION['User']->isLogged()) {
-            exit();
-        }
-        $username = $_SESSION['User']->username;
-
-        $upload_directory = $root_directory . "files/resumedrop/$username/";
-
-        $https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https://' : 'http://';
-
-        $upload_http = $https . $_SERVER['HTTP_HOST'] . preg_replace('%' . $_SERVER['DOCUMENT_ROOT'] .
-                        '|mod/resumedrop/javascript/fileupload/server/php/index.php%',
-                        '', $_SERVER['SCRIPT_FILENAME']) . "files/resumedrop/$username/";
+        $upload_directory = PHPWS_SOURCE_DIR . 'files/resumedrop/';
+        $upload_http = PHPWS_SOURCE_HTTP . 'files/resumedrop/';
 
         $this->options = array(
             'script_url' => $this->get_full_url() . '/',
@@ -113,7 +98,7 @@ class UploadHandler {
             // Set the following option to false to enable resumable uploads:
             'discard_aborted_uploads' => true,
             // Set to false to disable rotating images based on EXIF meta data:
-            'orient_image' => true,
+            'orient_image' => false,
             'image_versions' => array(
                 // Uncomment the following version to restrict the size of
                 // uploaded images:
@@ -450,7 +435,7 @@ class UploadHandler {
         return $this->fix_integer_overflow($val);
     }
 
-    protected function validate($uploaded_file, $file, $error, $index)
+    protected function validate($uploaded_file, $file, $error)
     {
         if ($error) {
             $file->error = $this->get_error_message($error);
@@ -710,13 +695,19 @@ class UploadHandler {
         $file->name = $this->get_file_name($name, $type, $index, $content_range);
         $file->size = $this->fix_integer_overflow(intval($size));
         $file->type = $type;
-        if ($this->validate($uploaded_file, $file, $error, $index)) {
+
+        $this->stamped_file = $this->get_upload_path(\Current_User::getUsername() . '-' . time() . '.pdf');
+
+        if ($this->validate($uploaded_file, $file, $error)) {
             $this->handle_form_data($file, $index);
             $upload_dir = $this->get_upload_path();
             if (!is_dir($upload_dir)) {
                 mkdir($upload_dir, $this->options['mkdir_mode'], true);
             }
-            $file_path = $this->get_upload_path($file->name);
+
+            //$file_path = $this->get_upload_path($file->name);
+            //ignoring original filename
+            $file_path = $this->stamped_file;
             $append_file = $content_range && is_file($file_path) &&
                     $file->size > $this->get_file_size($file_path);
             if ($uploaded_file && is_uploaded_file($uploaded_file)) {
@@ -752,6 +743,9 @@ class UploadHandler {
                 }
             }
             $this->set_additional_file_properties($file);
+        }
+        if ($file->error) {
+            $this->error = true;
         }
         return $file;
     }
@@ -938,9 +932,12 @@ class UploadHandler {
 
     public function post($print_response = true)
     {
+        /*
         if (isset($_REQUEST['_method']) && $_REQUEST['_method'] === 'DELETE') {
             return $this->delete($print_response);
         }
+         *
+         */
         $upload = isset($_FILES[$this->options['param_name']]) ?
                 $_FILES[$this->options['param_name']] : null;
         // Parse the Content-Disposition header, if available:
@@ -983,6 +980,9 @@ class UploadHandler {
                     $content_range
             );
         }
+        /**
+         * Email resume
+         */
         return $this->generate_response(
                         array($this->options['param_name'] => $files),
                         $print_response
