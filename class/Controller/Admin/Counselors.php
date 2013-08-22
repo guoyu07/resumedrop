@@ -95,10 +95,15 @@ class Counselors extends \Http\Controller {
                     $counselor_id = $request->getVar('counselor_id');
                     $data['id'] = $counselor_id;
                     $db = \Database::newDB();
-                    $c1 = $db->addTable('rd_counselor')->getFieldConditional('user_id',
+                    $c1 = $db->addTable('rd_counselor')->getFieldConditional('id',
                             $counselor_id);
                     $db->setConditional($c1);
                     $db->delete();
+                    $db2 = \Database::newDB();
+                    $db2->setConditional($db2->addTable('rd_ctocollege')->getFieldConditional('counselor_id',
+                                    $counselor_id));
+                    $data['sql'] = $db2->deleteQuery();
+                    $db2->delete();
                     $data['counselors'] = $this->getCounselorList();
                     break;
             }
@@ -107,6 +112,7 @@ class Counselors extends \Http\Controller {
 
         $db = \Database::newDB();
         $coun = $db->addTable('rd_counselor');
+        $coun->addField('id', 'cid');
         $cuid_field = $coun->getField('user_id');
 
         $users = $db->addTable('users');
@@ -124,7 +130,7 @@ class Counselors extends \Http\Controller {
         $pager->setTableHeaders($tbl_headers);
         $pager->setId('counselor-list');
         $pager->setCallback(array('resumedrop\Controller\Admin\Counselors', 'rowAdd'));
-        $pager->setRowIdColumn('id');
+        $pager->setRowIdColumn('cid');
         $data = $pager->getJson();
         return parent::getJsonView($data, $request);
     }

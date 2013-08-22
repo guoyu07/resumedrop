@@ -22,7 +22,7 @@
 </div>
 <div id="assign-form" style="display:none">
     <?php if (isset($users)): ?>
-    <form method="post" action="resumedrop/counselors">
+    <form method="post" action="resumedrop/admin/counselors">
         <input type="hidden" name="command" value="save_counselor" />
         <select name="user_id" id="user-id"><?php foreach($users as $user_id=>$username):?>
             <option value='<?=$user_id?>'><?=$username?></option>

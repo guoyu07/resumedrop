@@ -33,7 +33,6 @@ function Counselor() {
                         'command': 'delete_counselor',
                         'counselor_id': counselor_id
                     }, function(data) {
-                console.log(data.counselors);
                 if (data.counselors) {
                     $('#user-id').html('');
                     for (var id in data.counselors) {
@@ -42,8 +41,7 @@ function Counselor() {
                 }
                 Pagers.reload('counselor-list');
                 $this.initialize();
-            },
-                    'json');
+            },'json');
         });
     };
 
