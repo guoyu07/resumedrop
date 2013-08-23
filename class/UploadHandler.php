@@ -744,7 +744,7 @@ class UploadHandler {
             }
             $this->set_additional_file_properties($file);
         }
-        if ($file->error) {
+        if (!empty($file->error)) {
             $this->error = true;
         }
         return $file;

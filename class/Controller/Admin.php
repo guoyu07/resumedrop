@@ -19,7 +19,8 @@ class Admin extends \Http\Controller {
         }
         $controllers = array(
             'colleges' => '\resumedrop\Controller\Admin\Colleges',
-            'counselors' => '\resumedrop\Controller\Admin\Counselors'
+            'counselors' => '\resumedrop\Controller\Admin\Counselors',
+            'settings' => '\resumedrop\Controller\Admin\Settings'
         );
 
         if (!array_key_exists($token, $controllers)) {
@@ -31,10 +32,7 @@ class Admin extends \Http\Controller {
         return $controller;
     }
 
-    public function getHtmlView($data, \Request $request)
-    {
-
-    }
+    public function getHtmlView($data, \Request $request){}
 
 }
 

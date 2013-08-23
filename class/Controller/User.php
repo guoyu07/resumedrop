@@ -159,56 +159,54 @@ class User extends \Http\Controller {
                 $this->student->college_id);
         $db->setConditional($c1);
 
-        $to[] = $counselor_email;
-        /*
-          if ($this->reference_email1) {
-          $to[] = $this->reference_email1;
-          }
-          if ($this->reference_email2) {
-          $to[] = $this->reference_email2;
-          }
-          if ($this->reference_email3) {
-          $to[] = $this->reference_email3;
-          }
+        $counselors = $db->select();
 
-          $subject = 'Reference request';
-          $from = \PHPWS_Settings::get('douglas', 'contact_email');
-          $due_date = \PHPWS_Settings::get('douglas', 'due_date');
-          $message = <<<EOF
-          <html><body>
-          <p>Good day,</p>
+        $contact_email = \PHPWS_Settings::get('resumedrop', 'contact_email');
 
-          <p>{$this->first_name} {$this->last_name} submitted your email address as a reference for
-          University Recreation's Douglas Miller Honorary Scholarship.</p>
-          <p>Their application is attached.</p>
+        if (empty($counselors)) {
+            $to[] = $contact_email;
+            $subject = 'ResumeDrop: Counselor not found';
+            $message = <<<EOF
+<html>
+    <body>
+        <p>This student's college did not have an assigned counselor.</p>
+    </body>
+</html>
+EOF;
+        } else {
+            foreach ($counselors as $row) {
+                $to[] = $row['email'];
+            }
+            $subject = 'ResumeDrop: a student requests your assistance';
+            $message = <<<EOF
+<html>
+    <body>
+        <p>Thank you for using The Career Development Center resume drop.
+We have received your resume and a career counselor will review it and
+email you within 3 to 5 business days.</p>
+<p>Thank you,<br />Career Development Staff</p>
+    </body>
+</html>
+EOF;
+        }
 
-          <p>Please take a moment to email your recommendation to $from by replying to this email.</p>
+        $from = \PHPWS_Settings::get('resumedrop', 'contact_email');
 
-          <p>The due date for the reference is $due_date.</p>
-
-          <p>Thank you for your time.</p>
-          <p>
-          Sincerely,<br />
-          University Recreation</p></body></html>
-          EOF;
-          $file_name = $this->printPDF(true);
-          foreach ($to as $refemail) {
-          $this->mail_file($refemail, $subject, $message, $from, $file_name);
-          }
-         *
-         */
+        foreach ($to as $refemail) {
+            $this->mail_file($refemail, $subject, $message, $from, $file);
+        }
     }
 
     public function post(\Request $request)
     {
+        $this->checkShibLogin();
+        $this->loadStudent();
         $token = $request->getCurrentToken();
         try {
             if ($token == 'upload') {
                 $this->uploadFile();
                 exit();
             } else {
-                $this->checkShibLogin();
-                $this->loadStudent();
                 if (!$request->isVar('command')) {
                     throw new \resumedrop\UserException('Colleges have not been created. Please contact the administrators.');
                 }
