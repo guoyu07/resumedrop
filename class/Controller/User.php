@@ -113,8 +113,9 @@ class User extends \Http\Controller {
 
         // build the headers for attachment and html
         $h = "From: $from\r\n";
-        if ($replyto)
+        if ($replyto) {
             $h .= "Reply-To: " . $replyto . "\r\n";
+        }
         $h .= "MIME-Version: 1.0\r\n";
         $h .= "Content-Type: multipart/mixed; boundary=\"" . $uid . "\"\r\n\r\n";
         $h .= "This is a multi-part message in MIME format.\r\n";
@@ -145,6 +146,10 @@ class User extends \Http\Controller {
 
     private function emailResume($file)
     {
+        $first_name = $this->student->first_name;
+        $last_name = $this->student->last_name;
+        $student_email = $this->student->username . '@appstate.edu';
+
         $db = \Database::newDB();
         $cttbl = $db->buildTable('rd_ctocollege');
         $cotbl = $db->buildTable('rd_counselor');
@@ -165,7 +170,7 @@ class User extends \Http\Controller {
 
         if (empty($counselors)) {
             $to[] = $contact_email;
-            $subject = 'ResumeDrop: Counselor not found';
+            $subject = 'Resume Drop: Counselor not found';
             $message = <<<EOF
 <html>
     <body>
@@ -177,14 +182,11 @@ EOF;
             foreach ($counselors as $row) {
                 $to[] = $row['email'];
             }
-            $subject = 'ResumeDrop: a student requests your assistance';
+            $subject = 'Resume Drop: Student Resume Request';
             $message = <<<EOF
 <html>
     <body>
-        <p>Thank you for using The Career Development Center resume drop.
-We have received your resume and a career counselor will review it and
-email you within 3 to 5 business days.</p>
-<p>Thank you,<br />Career Development Staff</p>
+        <p> $first_name $last_name (<a href="mailto:$student_email">$student_email</a>) has requested your help with a resume.</p>
     </body>
 </html>
 EOF;
@@ -195,6 +197,23 @@ EOF;
         foreach ($to as $refemail) {
             $this->mail_file($refemail, $subject, $message, $from, $file);
         }
+
+        $subject = 'Resume Drop Confirmation';
+        $message = <<<EOF
+<html>
+    <body>
+        <p>$first_name $last_name,</p>
+        <p>Thank you for using The Career Development Center resume drop.
+We have received your resume and a career counselor will review it and
+email you within 3 to 5 business days.</p>
+<p>Thank you,<br />Career Development Staff</p>
+    </body>
+</html>
+EOF;
+
+        $this->mail_file($student_email, $subject, $message, $from, $file);
+
+        unlink($file);
     }
 
     public function post(\Request $request)
