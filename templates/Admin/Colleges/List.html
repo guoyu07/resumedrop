@@ -1,7 +1,7 @@
 <?=$menu?>
-<p><button class="btn" id="new-college">Create college</button></p>
+<p><button class="btn btn-primary" id="new-college">Create college</button></p>
 <div class="pager-listing" id="college-list" data-rpp="10">
-    <div style="text-align:right" class="pager-search"></div>
+    <div class="pull-right pager-search"></div>
     <table class="table table-striped">
         <thead class="pager-head">
             <tr>
@@ -16,7 +16,7 @@
             </tr>
         </tbody>
     </table>
-    <div class="pagination pagination-centered"></div>
+    <div id="page-list" style="text-align:center"></div>
 </div>
 <div id="college-options" style="display:none">
     <form method="post" action="resumedrop/admin/colleges" class="form-inline">
