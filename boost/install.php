@@ -14,12 +14,6 @@ function resumedrop_install(&$content)
     $db->begin();
 
     try {
-        $student = new resumedrop\Student;
-        $student->createTable($db);
-
-        $resume = new resumedrop\Resume;
-        $resume->createTable($db);
-
         $college = new resumedrop\College;
         $college->createTable($db);
 
