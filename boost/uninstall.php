@@ -10,8 +10,6 @@
 function resumedrop_uninstall(&$content)
 {
     $db = Database::newDB();
-    $db->buildTable('rd_student')->drop();
-    $db->buildTable('rd_resume')->drop();
     $db->buildTable('rd_counselor')->drop();
     $db->buildTable('rd_college')->drop();
     return true;
