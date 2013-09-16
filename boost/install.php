@@ -20,6 +20,9 @@ function resumedrop_install(&$content)
         $counselor = new resumedrop\Counselor;
         $counselor->createTable($db);
 
+        $student = new resumedrop\Student;
+        $student->createTable($db);
+
         $ctoc = $db->buildTable('rd_ctocollege');
         $c1 = $ctoc->addDataType('college_id', 'integer');
         $c2 = $ctoc->addDataType('counselor_id', 'integer');

@@ -265,7 +265,7 @@ EOF;
         if (empty($college_id)) {
             throw new \resumedrop\UserException('Please review your information. You must pick a college.');
         } else {
-            $this->student->college_id = $college_id;
+            $this->student->college_id = (int)$college_id;
         }
         $this->student->reviewed = true;
         \ResourceFactory::saveResource($this->student);
@@ -348,7 +348,6 @@ EOF;
         }
 
         \Form::requiredScript();
-
         $form = $this->student->pullForm();
         $form->getSingleInput('first_name')->setRequired();
         $form->getSingleInput('last_name')->setRequired();
