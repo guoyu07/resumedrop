@@ -6,9 +6,9 @@ $(window).load(function() {
 
 function College() {
     this.college_id = 0;
+    var $this = this;
 
     this.init = function() {
-        $this = this;
         $('#college-options').dialog({
             modal: true,
             autoOpen: false,

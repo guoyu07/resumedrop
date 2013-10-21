@@ -91,6 +91,10 @@ class User extends \Http\Controller {
         $ftype = "";
         if ($ext == ".doc")
             $ftype = "application/msword";
+        if ($ext == '.docx') {
+            $ftype = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        }
+
         if ($ext == ".jpg")
             $ftype = "image/jpeg";
         if ($ext == ".gif")
@@ -265,7 +269,7 @@ EOF;
         if (empty($college_id)) {
             throw new \resumedrop\UserException('Please review your information. You must pick a college.');
         } else {
-            $this->student->college_id = (int)$college_id;
+            $this->student->college_id = (int) $college_id;
         }
         $this->student->reviewed = true;
         \ResourceFactory::saveResource($this->student);
@@ -346,13 +350,12 @@ EOF;
         foreach ($colleges as $c) {
             $sel[$c['id']] = $c['name'];
         }
-
         \Form::requiredScript();
         $form = $this->student->pullForm();
         $form->getSingleInput('first_name')->setRequired();
         $form->getSingleInput('last_name')->setRequired();
-        $form->addSelect('college', $sel, 'College of study')->setRequired();
-        $form->setAction('/resumedrop/');
+        $select = $form->addSelect('college', $sel, 'College of study')->setRequired();
+        $select->copyOptionToValue();
         $form->addHidden('command', 'update_student');
         $form->addSubmit('submit', 'The information above is correct');
         $vars = $form->getInputStringArray();

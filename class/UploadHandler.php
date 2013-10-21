@@ -696,7 +696,9 @@ class UploadHandler {
         $file->size = $this->fix_integer_overflow(intval($size));
         $file->type = $type;
 
-        $this->stamped_file = $this->get_upload_path(\Current_User::getUsername() . '-' . time() . '.pdf');
+        $ext = \PHPWS_File::getFileExtension($name);
+
+        $this->stamped_file = $this->get_upload_path(\Current_User::getUsername() . '-' . time() . '.' . $ext);
 
         if ($this->validate($uploaded_file, $file, $error)) {
             $this->handle_form_data($file, $index);
