@@ -19,8 +19,9 @@ class User extends \Http\Controller {
     {
         if (!isset($_SERVER['HTTP_SHIB_EP_AFFILIATION']) || !preg_match('/student@appstate.edu/',
                         $_SERVER['HTTP_SHIB_EP_AFFILIATION'])) {
-            throw new \resumedrop\UserException('You must <a href="login/">log-in</a> with an ASU account to use this service.');
+            return false;
         }
+        return true;
     }
 
     private function loadStudent()
@@ -55,13 +56,20 @@ class User extends \Http\Controller {
     public function get(\Request $request)
     {
         try {
-            $this->checkShibLogin();
-            $this->loadStudent();
+            if ($this->checkShibLogin()) {
+                $this->loadStudent();
+                $token = $request->getCurrentToken();
+            } else {
+                $token = 'introduction';
+            }
 
-            $token = $request->getCurrentToken();
             switch ($token) {
                 case '/':
                     $data = $this->main();
+                    break;
+
+                case 'introduction':
+                    $data = $this->introduction();
                     break;
             }
         } catch (\resumedrop\UserException $ue) {
@@ -294,6 +302,13 @@ EOF;
         }
 
         return array('title' => $title, 'content' => $content);
+    }
+
+    private function introduction()
+    {
+        $title = \Settings::get('resumedrop', 'intro_title');
+        $content = \Settings::get('resumedrop', 'intro_content');
+        return array('title'=>$title, 'content'=>$content);
     }
 
     private function notLogged()

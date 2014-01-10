@@ -1,5 +1,11 @@
 <?=$menu?>
+<?php if (isset($alert)): ?>
+<div class="alert alert-success"><?=$alert?></div>
+<?php endif; ?>
 <?=$form_start?>
-<p><?=$contact_email_label, ' ', $contact_email?></p>
+<p><?=$contact_email_group?></p>
+<p><?=$intro_title_group?></p>
+<p><?=$intro_content_group?></p>
+<script>window.onload=function() {CKEDITOR.replace('intro-content');};</script>
 <?=$submit?>
 <?=$form_end?>

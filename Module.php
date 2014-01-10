@@ -1,5 +1,4 @@
 <?php
-
 namespace resumedrop;
 
 /**
@@ -7,7 +6,7 @@ namespace resumedrop;
  * @author Matthew McNaney <mcnaney at gmail dot com>
  * @license http://opensource.org/licenses/lgpl-3.0.html
  */
-class Module extends \Module {
+class Module extends \Module implements \SettingDefaults {
 
     public function __construct()
     {
@@ -29,6 +28,13 @@ class Module extends \Module {
             throw new \Http\NotFoundException($request);
         }
         return $controller;
+    }
+
+    public function getSettingDefaults()
+    {
+        $settings['intro_title'] = 'Sorry';
+        $settings['intro_content'] = 'You will need to log in with a student account to get started.';
+        return $settings;
     }
 
 }
